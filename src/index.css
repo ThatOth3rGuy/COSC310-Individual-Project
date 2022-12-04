@@ -1,0 +1,9 @@
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  background: rgba(213, 223, 235, 255);
+  background-image: url('/src/img/bg2.jpg');
+  background-size: 1900px;
+}

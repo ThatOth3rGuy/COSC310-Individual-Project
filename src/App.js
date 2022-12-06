@@ -14,6 +14,9 @@ function App() {
   const month = date.getMonth();
   const year = date.getFullYear();
 
+
+  let timeout = null;
+
   const days = [
     "Sunday",
     "Monday",
@@ -193,6 +196,106 @@ function App() {
         inputRef.value = ""; // clear the input
       }, 2000);
     }
+
+    let translate = [
+      "translate|Translate|TRANSLATE",
+    ]; //adding the age-question
+    let words12 = new RegExp(translate);
+    if (words12.test(document.querySelector("#input").value)) {
+      // if the input contains some question
+      getBotMessage.innerText = "Typing...";
+      setTimeout(() => {
+        getBotMessage.innerText = "Enter text in english.  DO NOT PRESS SEND !";
+        inputRef.value = "";
+      }, 2000);
+
+      document.querySelector("#input").addEventListener('keyup', function (e) {
+        clearTimeout(timeout);
+
+        timeout = setTimeout(function () {
+          const encodedParams = new URLSearchParams();
+          encodedParams.append("q", document.querySelector("#input").value);
+          inputRef.value = "";
+          getBotMessage.innerText = "Choose a language code [ ak | hi | es | ay | be | doi | el ]";
+          document.querySelector("#input").addEventListener('keyup', function (e) {
+            clearTimeout(timeout);
+            timeout = setTimeout(function () {
+              encodedParams.append("target", document.querySelector("#input").value);
+              encodedParams.append("source", "en");
+
+              const options = {
+                method: 'POST',
+                headers: {
+                  'content-type': 'application/x-www-form-urlencoded',
+                  'Accept-Encoding': 'application/gzip',
+                  'X-RapidAPI-Key': 'e9573d0c2cmsh90d914f3399d6e5p1c953bjsn435775b9203c',
+                  'X-RapidAPI-Host': 'google-translate1.p.rapidapi.com'
+                },
+                body: encodedParams
+              };
+
+              fetch('https://google-translate1.p.rapidapi.com/language/translate/v2', options)
+                .then(response => response.json())
+                .then(response => {
+                  getBotMessage.innerText = "Waiting for response.....";
+                  setTimeout(() => {
+                    getBotMessage.innerText = response.data.translations[0].translatedText;
+                    inputRef.value = ""; // clear the input
+                  }, 3000);
+                })
+                .catch(err => console.error(err));
+            }, 1500);
+          });
+          inputRef.value = "";
+        }, 1500);
+      });
+    }
+
+
+
+    let askWeather = [
+      "weather|Weather|WEATHER",
+    ]; //adding the age-question
+    let words14 = new RegExp(askWeather);
+    if (words14.test(document.querySelector("#input").value)) {
+      getBotMessage.innerText = "Typing...";
+      setTimeout(function () {
+        getBotMessage.innerText = "Please enter a country, city or specific address. Seperate with spaces ! DO NOT PRESS SEND";
+        inputRef.value = "";
+      }, 2000);
+      document.querySelector("#input").addEventListener('keyup', function (e) {
+        clearTimeout(timeout);
+
+        timeout = setTimeout(function () {
+          const address = document.querySelector("#input").value
+          const addressClean = address.replace(/\s/g, '+');
+
+          fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + addressClean + '&key=AIzaSyD-aFILuoHxUoMl717T6RJkPO9a--412Cg', {
+            method: 'GET'
+          })
+            .then(function (response) { return response.json(); })
+            .then(function (json) {
+              // use the json
+
+              getBotMessage.innerText = "Typing...";
+              fetch('http://api.weatherapi.com/v1/current.json?key=a3af8f8ec1e146cdb2b191214220612&q=' + json.results[0].geometry.location.lat + ',' + json.results[0].geometry.location.lng + '&aqi=no', {
+                method: 'GET'
+              })
+                .then(function (response) { return response.json(); })
+                .then(function (json) {
+
+                  setTimeout(() => {
+                    getBotMessage.innerText = "Current Temprature : " + json.current.temp_c + " °C";
+                    inputRef.value = ""; // clear the input
+                  }, 2000);
+                });
+            });
+        }, 3000);
+
+      });
+    }
+
+
     getHumanMessage.innerText = inputRef.value; // display the message
   };
   return (

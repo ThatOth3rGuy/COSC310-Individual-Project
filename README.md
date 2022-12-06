@@ -39,6 +39,13 @@ Some samples of the working have been posted as screenshots below :
 ## The list of API's included :
 > 1) Google Geocoding API + Weather API 
 The Google's Geocoding API is used to determine the geographical location of the address in terms of its latitude and longitude. These values are used as parameteres for the Weather API which then returns general information about the current weather condition at the given address. The address is cleaned using simple regular expressions to replace any spaces in the input with a '+' sign.
+![image](https://user-images.githubusercontent.com/30193992/206025351-a5743841-f0e5-4e00-9784-c52997a5e182.png)
+
 
 > 2) Google Translation API 
-The Google's Translation API is used to translate any given text in english to a language that the user can choose from a set provided. This is achieved my making a ``fetch() POST`` request to the translation API which specifies the source and the target language code in its request. A second ``fetch() GET`` request is made to retrieve the results from the translation API. The translated text is then returned to the user.
+The Google's Translation API is used to translate any given text in english to a language that the user can choose from a set provided. This is achieved my making a ``fetch() POST`` request to the translation API which specifies the source and the target language code in its request. 
+![image](https://user-images.githubusercontent.com/30193992/206025002-b12b00da-0290-49da-b61c-4e2677a0a10e.png)
+
+A``fetch() GET`` request is then made to retrieve the results from the translation API. The translated text is then returned to the user.
+![image](https://user-images.githubusercontent.com/30193992/206025138-2bf4be7f-30b6-4597-a478-febc96930236.png)
+

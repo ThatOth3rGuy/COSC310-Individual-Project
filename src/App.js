@@ -5,7 +5,6 @@ import { useState, useRef } from "react";
 function App() {
   const humanMessage = useRef();
   const botmessage = useRef();
-  const botmessage2 = useRef();
   const input = useRef();
 
   const date = new Date();
@@ -65,12 +64,10 @@ function App() {
   };
   const handleInput = () => {
     const botMessage = document.querySelector("#message1");
-    const botMessage2 = document.querySelector("#message3");
     const userMessage = document.querySelector("#message2");
     const inputRef = input.current;
     const getHumanMessage = humanMessage.current;
     const getBotMessage = botmessage.current;
-    const getBotMessage2 = botMessage2.current;
 
     let welcome = [
       "hi|hello|Hello|hey|sup|yo|wassup|whats up|howdy|greetings|good morning|good afternoon|good evening",
@@ -224,15 +221,56 @@ function App() {
               .then(response => {
                 const id = Object.keys(response.query.pages)
                 getBotMessage.innerText = response.query.pages[id[0]].extract;
-                document.querySelector("#input").addEventListener('keyup', function (e) {
-                  getBotMessage.innerText = "To Search Again Type 'Search'";
-                  inputRef.value = ""; // clear the input
-                });
+                inputRef.value = "";
               })
             }, 3000);
           })
       } 
-      
+
+      //UNABLE TO GET WORKING PROPERLY
+      let map = [
+        "directions|Directions|Maps|maps|Street View|street view",
+      ];
+      let words14 = new RegExp(map);
+    if (words14.test(document.querySelector("#input").value)) {
+      getBotMessage.innerText = "Typing...";
+      setTimeout(function () {
+        getBotMessage.innerText = "Please enter a city or specific address. Seperate with spaces ! DO NOT PRESS SEND";
+        inputRef.value = "";
+      }, 2000);
+      document.querySelector("#input").addEventListener('keyup', function (e) {
+        clearTimeout(timeout);
+
+        timeout = setTimeout(function () {
+          const address = document.querySelector("#input").value
+          const addressClean = address.replace(/\s/g, '+');
+
+          fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + addressClean + '&key=AIzaSyD-aFILuoHxUoMl717T6RJkPO9a--412Cg', {
+            method: 'GET'
+          })
+            .then(function (response) { return response.json(); })
+            .then(function (json) {
+              // use the json
+
+              getBotMessage.innerText = "Typing...";
+              fetch('https://maps.googleapis.com/maps/api/streetview?size=400x400&location='+json.results[0].geometry.location.lat + ',' + json.results[0].geometry.location.lng+'&fov=120&heading=0&pitch=0&key=AIzaSyA7qQ86gLstwURXzCBEODbz2HBpItylO-Q&signature=5fxn-EII73FIFdqPjlIAfr39vwI=', {
+                method: 'GET'
+              })
+                .then(function (response) { return response.json(); })
+                .then(function (json) {
+
+                  setTimeout(() => {
+                    getBotMessage.innerText = json.GoogleMap;
+                    inputRef.value = ""; // clear the input
+                  }, 2000);
+                });
+            });
+        }, 3000);
+      });
+    }
+
+
+
     getHumanMessage.innerText = inputRef.value; // display the message
   };
   return (

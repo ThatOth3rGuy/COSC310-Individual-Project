@@ -5,6 +5,7 @@ import { useState, useRef } from "react";
 function App() {
   const humanMessage = useRef();
   const botmessage = useRef();
+  const botmessage2 = useRef();
   const input = useRef();
 
   const date = new Date();
@@ -64,10 +65,12 @@ function App() {
   };
   const handleInput = () => {
     const botMessage = document.querySelector("#message1");
+    const botMessage2 = document.querySelector("#message3");
     const userMessage = document.querySelector("#message2");
     const inputRef = input.current;
     const getHumanMessage = humanMessage.current;
     const getBotMessage = botmessage.current;
+    const getBotMessage2 = botMessage2.current;
 
     let welcome = [
       "hi|hello|Hello|hey|sup|yo|wassup|whats up|howdy|greetings|good morning|good afternoon|good evening",
@@ -197,61 +200,6 @@ function App() {
       }, 2000);
     }
 
-    let translate = [
-      "translate|Translate|TRANSLATE",
-    ]; //adding the age-question
-    let words12 = new RegExp(translate);
-    if (words12.test(document.querySelector("#input").value)) {
-      // if the input contains some question
-      getBotMessage.innerText = "Typing...";
-      setTimeout(() => {
-        getBotMessage.innerText = "Enter text in english.  DO NOT PRESS SEND !";
-        inputRef.value = "";
-      }, 2000);
-
-      document.querySelector("#input").addEventListener('keyup', function (e) {
-        clearTimeout(timeout);
-
-        timeout = setTimeout(function () {
-          const encodedParams = new URLSearchParams();
-          encodedParams.append("q", document.querySelector("#input").value);
-          inputRef.value = "";
-          getBotMessage.innerText = "Choose a language code [ ak | hi | es | ay | be | doi | el ]";
-          document.querySelector("#input").addEventListener('keyup', function (e) {
-            clearTimeout(timeout);
-            timeout = setTimeout(function () {
-              encodedParams.append("target", document.querySelector("#input").value);
-              encodedParams.append("source", "en");
-
-              const options = {
-                method: 'POST',
-                headers: {
-                  'content-type': 'application/x-www-form-urlencoded',
-                  'Accept-Encoding': 'application/gzip',
-                  'X-RapidAPI-Key': 'e9573d0c2cmsh90d914f3399d6e5p1c953bjsn435775b9203c',
-                  'X-RapidAPI-Host': 'google-translate1.p.rapidapi.com'
-                },
-                body: encodedParams
-              };
-
-              fetch('https://google-translate1.p.rapidapi.com/language/translate/v2', options)
-                .then(response => response.json())
-                .then(response => {
-                  getBotMessage.innerText = "Waiting for response.....";
-                  setTimeout(() => {
-                    getBotMessage.innerText = response.data.translations[0].translatedText;
-                    inputRef.value = ""; // clear the input
-                  }, 3000);
-                })
-                .catch(err => console.error(err));
-            }, 1500);
-          });
-          inputRef.value = "";
-        }, 1500);
-      });
-    }
-
-
     // Wikipedia API
     let wikiSearch = [
       "search|Search|wikipedia|Wikipedia|Define|define"
@@ -268,67 +216,23 @@ function App() {
 
         timeout = setTimeout(function () {
           const searchString = document.querySelector("#input").value
-          getBotMessage.innerText = "Typing...";
-              fetch("https://en.wikipedia.org/w/api.php?action=parse&prop=text&page="+searchString+"&section=0&format=json&formatversion=2&callback=?", {
-                method: 'GET'
+         
+              fetch("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=3&exintro&explaintext&redirects=1&titles="+searchString+"&format=json&origin=*", {  
+                method: 'GET'       
               })
-                .then(function (response) { return response.json(); })
-                .then(function (json) {
-                      setTimeout(() => {
-                      getBotMessage.innerText = "Wikipedia Says:" + json.data;
-                     // clear the input
-                  }, 2000);
+              .then(response => response.json())
+              .then(response => {
+                const id = Object.keys(response.query.pages)
+                getBotMessage.innerText = response.query.pages[id[0]].extract;
+                document.querySelector("#input").addEventListener('keyup', function (e) {
+                  getBotMessage.innerText = "To Search Again Type 'Search'";
+                  inputRef.value = ""; // clear the input
                 });
+              })
             }, 3000);
           })
       } 
-
-
-
-    let askWeather = [
-      "weather|Weather|WEATHER",
-    ]; //adding the age-question
-    let words14 = new RegExp(askWeather);
-    if (words14.test(document.querySelector("#input").value)) {
-      getBotMessage.innerText = "Typing...";
-      setTimeout(function () {
-        getBotMessage.innerText = "Please enter a country, city or specific address. Seperate with spaces ! DO NOT PRESS SEND";
-        inputRef.value = "";
-      }, 2000);
-      document.querySelector("#input").addEventListener('keyup', function (e) {
-        clearTimeout(timeout);
-
-        timeout = setTimeout(function () {
-          const address = document.querySelector("#input").value
-          const addressClean = address.replace(/\s/g, '+');
-
-          fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + addressClean + '&key=AIzaSyD-aFILuoHxUoMl717T6RJkPO9a--412Cg', {
-            method: 'GET'
-          })
-            .then(function (response) { return response.json(); })
-            .then(function (json) {
-              // use the json
-
-              getBotMessage.innerText = "Typing...";
-              fetch('http://api.weatherapi.com/v1/current.json?key=a3af8f8ec1e146cdb2b191214220612&q=' + json.results[0].geometry.location.lat + ',' + json.results[0].geometry.location.lng + '&aqi=no', {
-                method: 'GET'
-              })
-                .then(function (response) { return response.json(); })
-                .then(function (json) {
-
-                  setTimeout(() => {
-                    getBotMessage.innerText = "Current Temprature : " + json.current.temp_c + " °C";
-                    inputRef.value = ""; // clear the input
-                  }, 2000);
-                });
-            });
-        }, 3000);
-
-      });
-    }
-    
-
-
+      
     getHumanMessage.innerText = inputRef.value; // display the message
   };
   return (

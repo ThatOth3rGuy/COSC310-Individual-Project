@@ -251,7 +251,36 @@ function App() {
       });
     }
 
+    let wikiSearch = [
+      "search|Search|wikipedia|Wikipedia|Define|define"
+    ];
+    let wiki = new RegExp(wikiSearch);
+    if (wiki.test(document.querySelector("#input").value)) {
+      getBotMessage.innerText = "Typing...";
+      setTimeout(function () {
+        getBotMessage.innerText = ".What do you wish to search? DO NOT PRESS SEND";
+        inputRef.value = "";
+      }, 2000);
+      document.querySelector("#input").addEventListener('keyup', function (e) {
+        clearTimeout(timeout);
 
+        timeout = setTimeout(function () {
+          const searchString = document.querySelector("#input").value
+          getBotMessage.innerText = "Typing...";
+              fetch("https://https://en.wikipedia.org/w/api.php?action=parse&format=json&page="+ searchString, {
+                method: 'GET'
+              })
+                .then(function (response) { return response.json(); })
+                .then(function (json) {
+
+                  setTimeout(() => {
+                    getBotMessage.innerText = "Wikipedia Says:" + json;
+                     // clear the input
+                  }, 2000);
+                });
+            });
+        }, 3000);
+      }
 
     let askWeather = [
       "weather|Weather|WEATHER",
@@ -294,6 +323,7 @@ function App() {
 
       });
     }
+    
 
 
     getHumanMessage.innerText = inputRef.value; // display the message

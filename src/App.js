@@ -251,6 +251,8 @@ function App() {
       });
     }
 
+
+    // Wikipedia API
     let wikiSearch = [
       "search|Search|wikipedia|Wikipedia|Define|define"
     ];
@@ -258,7 +260,7 @@ function App() {
     if (wiki.test(document.querySelector("#input").value)) {
       getBotMessage.innerText = "Typing...";
       setTimeout(function () {
-        getBotMessage.innerText = ".What do you wish to search? DO NOT PRESS SEND";
+        getBotMessage.innerText = "What do you wish to search? DO NOT PRESS SEND";
         inputRef.value = "";
       }, 2000);
       document.querySelector("#input").addEventListener('keyup', function (e) {
@@ -267,20 +269,21 @@ function App() {
         timeout = setTimeout(function () {
           const searchString = document.querySelector("#input").value
           getBotMessage.innerText = "Typing...";
-              fetch("https://https://en.wikipedia.org/w/api.php?action=parse&format=json&page="+ searchString, {
+              fetch("https://en.wikipedia.org/w/api.php?action=parse&prop=text&page="+searchString+"&section=0&format=json&formatversion=2&callback=?", {
                 method: 'GET'
               })
                 .then(function (response) { return response.json(); })
                 .then(function (json) {
-
-                  setTimeout(() => {
-                    getBotMessage.innerText = "Wikipedia Says:" + json;
+                      setTimeout(() => {
+                      getBotMessage.innerText = "Wikipedia Says:" + json.data;
                      // clear the input
                   }, 2000);
                 });
-            });
-        }, 3000);
-      }
+            }, 3000);
+          })
+      } 
+
+
 
     let askWeather = [
       "weather|Weather|WEATHER",
